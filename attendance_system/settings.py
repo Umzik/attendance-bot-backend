@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'attendance',  # replace with your database name
         'USER': 'admin',       # replace with your database user
         'PASSWORD': '12345', # replace with your database password
-        'HOST': 'db',           # service name defined in docker-compose.yml
+        'HOST': 'localhost',           # service name defined in docker-compose.yml
         'PORT': '5432',
     }
 }

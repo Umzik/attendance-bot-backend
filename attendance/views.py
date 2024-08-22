@@ -36,7 +36,8 @@ class CheckinView(APIView):
         # Retrieve location data from the request
         latitude = request.data.get('latitude')
         longitude = request.data.get('longitude')
-
+        print(latitude)
+        print(longitude)
         if latitude is None or longitude is None:
             return Response({"message": "Location is required."}, status=400)
 
@@ -163,7 +164,7 @@ class LoginView(APIView):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'role': user.role,
+                'role': user.role if user.role else "",
                 'first_name': user.first_name,
                 'last_name': user.last_name,
             }, status=status.HTTP_200_OK)

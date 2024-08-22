@@ -78,8 +78,12 @@ WSGI_APPLICATION = 'attendance_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'attendance',  # replace with your database name
+        'USER': 'admin',       # replace with your database user
+        'PASSWORD': '12345', # replace with your database password
+        'HOST': 'db',           # service name defined in docker-compose.yml
+        'PORT': '5432',
     }
 }
 
@@ -115,5 +119,5 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-OFFICE_LATITUDE = 40.7128  # Example: Latitude of the office
-OFFICE_LONGITUDE = -74.0060  # Example: Longitude of the office
+OFFICE_LATITUDE = 41.326829 # Example: Latitude of the office
+OFFICE_LONGITUDE = 69.256688 # Example: Longitude of the office

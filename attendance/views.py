@@ -36,8 +36,6 @@ class CheckinView(APIView):
         # Retrieve location data from the request
         latitude = request.data.get('latitude')
         longitude = request.data.get('longitude')
-        print(latitude)
-        print(longitude)
         if latitude is None or longitude is None:
             return Response({"message": "Location is required."}, status=400)
 

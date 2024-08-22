@@ -119,5 +119,5 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-OFFICE_LATITUDE = 41.326829 # Example: Latitude of the office
-OFFICE_LONGITUDE = 69.256688 # Example: Longitude of the office
+OFFICE_LATITUDE = 41.292213 # Example: Latitude of the office
+OFFICE_LONGITUDE = 69.211619 # Example: Longitude of the office

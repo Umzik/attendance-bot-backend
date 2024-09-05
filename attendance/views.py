@@ -1,31 +1,30 @@
 import io
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from .models import Attendance
-from django.utils import timezone
-from rest_framework.views import APIView
-from django.http import HttpResponse
-from .models import Attendance
-import pandas as pd
-from django.conf import settings
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from rest_framework.views import APIView
 from math import radians, cos, sin, asin, sqrt
 
+import pandas as pd
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.http import HttpResponse
+from django.utils import timezone
+from openpyxl.utils import get_column_letter
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import Attendance
+
+
 def haversine(lat1, lon1, lat2, lon2):
-    # Convert decimal degrees to radians
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-    
+
     # Haversine formula
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
-    r = 6371  # Radius of Earth in kilometers. Use 3956 for miles. Determines return value units.
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * asin(sqrt(a))
+    r = 6371
     return c * r
 
 
@@ -33,7 +32,6 @@ class CheckinView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Retrieve location data from the request
         latitude = request.data.get('latitude')
         longitude = request.data.get('longitude')
         if latitude is None or longitude is None:
@@ -46,11 +44,10 @@ class CheckinView(APIView):
 
         # Calculate the distance between the user's location and the office
         distance = haversine(float(latitude), float(longitude), office_latitude, office_longitude)
-        
+
         if distance > office_radius:
             return Response({"message": "You are too far from the office to check in."}, status=400)
 
-        # Check if the user has already checked in today
         attendance, created = Attendance.objects.get_or_create(
             employee=request.user,
             checkin_time__date=timezone.now().date()
@@ -81,7 +78,7 @@ class CheckoutView(APIView):
 
         # Calculate the distance between the user's location and the office
         distance = haversine(float(latitude), float(longitude), office_latitude, office_longitude)
-        
+
         if distance > office_radius:
             return Response({"message": "You are too far from the office to check out."}, status=400)
 
@@ -98,6 +95,7 @@ class CheckoutView(APIView):
             return Response({"message": "Check-out successful!"})
         except Attendance.DoesNotExist:
             return Response({"message": "No check-in found!"}, status=400)
+
 
 class AdminReportView(APIView):
     permission_classes = [IsAuthenticated]
@@ -129,8 +127,10 @@ class AdminReportView(APIView):
             data = [
                 {
                     'Employee': record.employee.first_name + " " + record.employee.last_name,
-                    'Check-in Time': record.checkin_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None),
-                    'Check-out Time': record.checkout_time.astimezone(timezone.get_current_timezone()).replace(tzinfo=None) if record.checkout_time else None,
+                    'Check-in Time': record.checkin_time.astimezone(timezone.get_current_timezone()).strftime(
+                        '%Y-%m-%d %H:%M:%S'),
+                    'Check-out Time': record.checkout_time.astimezone(timezone.get_current_timezone()).strftime(
+                        '%Y-%m-%d %H:%M:%S') if record.checkout_time else None,
                 }
                 for record in records
             ]
@@ -143,11 +143,18 @@ class AdminReportView(APIView):
                 df = pd.DataFrame(data)
                 df.to_excel(writer, sheet_name=str(date), index=False)
 
+                # Adjust column width to fit 40 characters
+                worksheet = writer.sheets[str(date)]
+                for col_num, column in enumerate(df.columns, 1):
+                    max_length = 40  # Set a fixed width to display 40 characters
+                    worksheet.column_dimensions[get_column_letter(col_num)].width = max_length
+
         output.seek(0)
         response = HttpResponse(output, content_type='application/vnd.ms-excel')
         response['Content-Disposition'] = f'attachment; filename="Attendance_Report_{start_date}_to_{end_date}.xlsx"'
-        
+
         return response
+
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
@@ -164,7 +171,8 @@ class LoginView(APIView):
                 'last_name': user.last_name if user.last_name else "",
             }, status=status.HTTP_200_OK)
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+
+
 class IsAdminView(APIView):
     permission_classes = [IsAuthenticated]
 

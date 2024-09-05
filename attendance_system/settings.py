@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 import os.path  
 import sys
 
@@ -28,7 +29,7 @@ SECRET_KEY = 'django-insecure-nqmwwpp=h$5hw5j!@&z2n9q0@t3@$5+sjqv!036nb%)x(u-iv&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['167.71.49.59']
+ALLOWED_HOSTS = ['167.71.49.59', '*']
 
 
 # Application definition
@@ -82,11 +83,11 @@ WSGI_APPLICATION = 'attendance_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'attendance',  # replace with your database name
-        'USER': 'admin',       # replace with your database user
-        'PASSWORD': '12345', # replace with your database password
-        'HOST': 'localhost',           # service name defined in docker-compose.yml
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CheckinView, CheckoutView, AdminReportView, LoginView, IsAdminView
+from .views import CheckinView, CheckoutView, AdminReportView, LoginView, IsAdminView, PasswordChangeView
 
 urlpatterns = [
     path('checkin/', CheckinView.as_view(), name='checkin'),
@@ -8,5 +8,6 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('is_admin/', IsAdminView.as_view(), name='is_admin'),
 
+    path('user/change_password/', PasswordChangeView.as_view(), name='change-password'),
 
 ]

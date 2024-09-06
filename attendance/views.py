@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Attendance
+from .serializers import PasswordChangeSerializer
 
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -179,3 +180,14 @@ class IsAdminView(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         return Response({'is_admin': user.is_superuser})
+
+
+class PasswordChangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = PasswordChangeSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.update_password(request.user)
+            return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

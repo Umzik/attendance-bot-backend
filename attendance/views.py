@@ -127,7 +127,7 @@ class AdminReportView(APIView):
             records = Attendance.objects.filter(checkin_time__date=single_date)
             data = [
                 {
-                    'Employee': record.employee.first_name if record.employee.last_name else '' + " " + record.employee.last_name if record.employee.last_name else '' ,
+                    'Employee': record.employee.first_name if record.employee.first_name else '' + " " + record.employee.last_name if record.employee.last_name else '' ,
                     'Check-in Time': record.checkin_time.astimezone(timezone.get_current_timezone()).strftime(
                         '%Y-%m-%d %H:%M:%S'),
                     'Check-out Time': record.checkout_time.astimezone(timezone.get_current_timezone()).strftime(

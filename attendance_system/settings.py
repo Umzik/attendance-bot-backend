@@ -125,3 +125,11 @@ SIMPLE_JWT = {
 
 OFFICE_LATITUDE = 41.292213 # Example: Latitude of the office
 OFFICE_LONGITUDE = 69.211619 # Example: Longitude of the office
+
+# Example: For UTC time
+TIME_ZONE = 'UTC'
+
+# Example: For a specific timezone (Asia/Tashkent)
+TIME_ZONE = 'Asia/Tashkent'
+
+USE_TZ = True 

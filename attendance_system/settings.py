@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import os.path  
 import sys
+from datetime import timedelta
 
 PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -121,6 +122,8 @@ REST_FRAMEWORK = {
 # JWT settings (optional)
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 }
 
 OFFICE_LATITUDE = 41.292213 # Example: Latitude of the office

@@ -197,6 +197,7 @@ class AdminCheckInOutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        print(request)
         # Ensure the user is an admin
         if request.user.role != 'admin':
             return Response({"message": "Permission denied."}, status=403)

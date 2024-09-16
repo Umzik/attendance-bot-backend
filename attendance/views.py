@@ -206,7 +206,7 @@ class AdminCheckInOutView(APIView):
         employee_id = request.data.get('employee_id')
         action = request.data.get('action')
 
-        if not employee_id or action not in ['checkin', 'checkout']:
+        if not employee_id or action not in ['check_in', 'check_out']:
             return Response({"message": "Employee ID and valid action (checkin/checkout) are required."}, status=400)
 
         # Find the employee by ID
@@ -224,7 +224,7 @@ class AdminCheckInOutView(APIView):
         except Attendance.DoesNotExist:
             attendance = None
 
-        if action == 'checkin':
+        if action == 'check_in':
             # If the admin is trying to check-in the user
             if attendance and attendance.checkin_time:
                 return Response({"message": "The user is already checked in today!"}, status=400)
@@ -233,7 +233,7 @@ class AdminCheckInOutView(APIView):
                 Attendance.objects.create(employee=employee, checkin_time=timezone.now())
                 return Response({"message": "Check-in successful!"})
 
-        elif action == 'checkout':
+        elif action == 'check_out':
             # If the admin is trying to check-out the user
             if attendance and attendance.checkout_time:
                 return Response({"message": "The user is already checked out today!"}, status=400)

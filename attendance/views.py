@@ -13,8 +13,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Attendance
-from .serializers import PasswordChangeSerializer
+from .models import Attendance, User
+from .serializers import PasswordChangeSerializer, UserSerializer
 
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -191,3 +191,65 @@ class PasswordChangeView(APIView):
             serializer.update_password(request.user)
             return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AdminCheckInOutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Ensure the user is an admin
+        if request.user.role != 'admin':
+            return Response({"message": "Permission denied."}, status=403)
+
+        # Retrieve the employee ID and action (check-in or check-out) from the request
+        employee_id = request.data.get('employee_id')
+        action = request.data.get('action')
+
+        if not employee_id or action not in ['checkin', 'checkout']:
+            return Response({"message": "Employee ID and valid action (checkin/checkout) are required."}, status=400)
+
+        # Find the employee by ID
+        try:
+            employee = User.objects.get(id=employee_id)
+        except User.DoesNotExist:
+            return Response({"message": "Employee not found."}, status=404)
+
+        # Check if there's already a record for today
+        try:
+            attendance = Attendance.objects.filter(
+                employee=employee,
+                checkin_time__date=timezone.now().date()
+            ).latest('checkin_time')
+        except Attendance.DoesNotExist:
+            attendance = None
+
+        if action == 'checkin':
+            # If the admin is trying to check-in the user
+            if attendance and attendance.checkin_time:
+                return Response({"message": "The user is already checked in today!"}, status=400)
+            else:
+                # Create a new check-in record
+                Attendance.objects.create(employee=employee, checkin_time=timezone.now())
+                return Response({"message": "Check-in successful!"})
+
+        elif action == 'checkout':
+            # If the admin is trying to check-out the user
+            if attendance and attendance.checkout_time:
+                return Response({"message": "The user is already checked out today!"}, status=400)
+            elif not attendance:
+                return Response({"message": "No check-in record found for today!"}, status=400)
+            else:
+                # Update the existing record with the checkout time
+                attendance.checkout_time = timezone.now()
+                attendance.save()
+                return Response({"message": "Check-out successful!"})
+
+
+class UserListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Fetch all users from the database
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)

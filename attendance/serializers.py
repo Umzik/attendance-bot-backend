@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Attendance
+from .models import Attendance, User
+
 
 class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,3 +23,9 @@ class PasswordChangeSerializer(serializers.Serializer):
     def update_password(self, user):
         user.set_password(self.validated_data['new_password'])
         user.save()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email']
